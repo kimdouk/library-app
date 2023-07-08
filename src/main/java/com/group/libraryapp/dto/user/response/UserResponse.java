@@ -1,4 +1,4 @@
-package com.group.libraryapp.dto.calculator.user.response;
+package com.group.libraryapp.dto.user.response;
 
 import com.group.libraryapp.domain.user.User;
 
@@ -11,6 +11,12 @@ public class UserResponse {
         this.id = id;
         this.name = user.getName();
         this.age = user.getAge();
+    }
+
+    public UserResponse(long id, String name, Integer age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
     }
 
     public long getId() {
