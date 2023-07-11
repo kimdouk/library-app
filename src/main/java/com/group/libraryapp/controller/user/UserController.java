@@ -3,7 +3,8 @@ package com.group.libraryapp.controller.user;
 import com.group.libraryapp.dto.user.request.UserCreateRequest;
 import com.group.libraryapp.dto.user.request.UserUpdateRequest;
 import com.group.libraryapp.dto.user.response.UserResponse;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.group.libraryapp.service.user.UserServiceV1;
+import com.group.libraryapp.service.user.UserServiceV2;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,17 +13,21 @@ import java.util.List;
 public class UserController {
 
     //    private final List<User> users = new ArrayList<>();
-    private final JdbcTemplate jdbcTemplate;
+    private final UserServiceV2 userService;
+//    private UserService userService;
+//    @Autowired
+//    public void setUserService(UserService userService) {
+//        this.userService = userService;
+//    }
 
-    public UserController(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public UserController(UserServiceV2 userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/user")
     public void saveUser(@RequestBody UserCreateRequest request) {
+        userService.saveUser(request);
 //        users.add(new User(request.getName(), request.getAge()));
-        String sql = "INSERT INTO user(name, age) VALUES(?,?)";
-        jdbcTemplate.update(sql, request.getName(), request.getAge());
     }
 
     @GetMapping("/user")
@@ -32,36 +37,16 @@ public class UserController {
 //            responses.add(new UserResponse(i + 1, users.get(i)));
 //        }
 //        return responses;
-        String sql = "SELECT * FROM user";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            long id = rs.getLong("id");
-            String name = rs.getString("name");
-            int age = rs.getInt("age");
-            return new UserResponse(id, name, age);
-        });
+        return userService.getUsers();
     }
 
     @PutMapping("/user")
     public void updateUser(@RequestBody UserUpdateRequest request) {
-        String readSql = "SELECT * FROM use WHERE id = ?";
-        boolean isUserNotExist = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, request.getId()).isEmpty();
-        if (isUserNotExist) {
-            throw new IllegalArgumentException();
-        }
-
-        String sql = "UPDATE user SET name = ? WHERE id = ?";
-        jdbcTemplate.update(sql, request.getName(), request.getId());
+        userService.updateUser(request);
     }
 
     @DeleteMapping("/user")
     public void deleteUser(@RequestParam String name) {// 파라미터 하나이기 때문에 그냥 객체x, requestParam
-        String readSql = "SELECT * FROM use WHERE id = ?";
-        boolean isUserNotExist = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, name).isEmpty();
-        if (isUserNotExist) {
-            throw new IllegalArgumentException();
-        }
-
-        String sql = "DELETE FROM user WHERE name = ?";
-        jdbcTemplate.update(sql, name);
+        userService.deleteUser(name);
     }
 }
